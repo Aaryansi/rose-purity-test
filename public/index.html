@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rose-Hulman Purity Test</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css"> <!-- Add this line -->
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: black;
+            color: white;
+            overflow: hidden;
+            position: relative;
+        }
+
+        canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+        }
+
+        .glass-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border-radius: 20px;
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.8);
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 40px;
+            text-align: center;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+
+            @media (max-width: 768px) {
+                .glass-container {
+                    max-width: 90%;
+                }
+            }
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+        }
+
+        p {
+            font-size: 1rem;
+            font-weight: 400;
+            margin-bottom: 30px;
+        }
+
+        .question {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+        }
+
+        button {
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease-in-out;
+        }
+
+        button:hover {
+            background-color: rgba(255, 255, 255, 0.4);
+        }
+
+        .chatbot-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+            transition: all 0.3s ease-in-out;
+        }
+
+        .chatbot-button:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .chatbot-button::after {
+            content: 'Coming Soon!';
+            position: absolute;
+            bottom: 70px;
+            right: -10px;
+            background: rgba(255, 255, 255, 0.8);
+            color: black;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            display: none;
+        }
+
+        .chatbot-button:hover::after {
+            display: block;
+        }
+
+        #results {
+            margin-top: 30px;
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        #toast {
+            display: none;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            z-index: 1000;
+        }
+
+        input[type="checkbox"]:focus {
+            outline: 2px solid rgba(255, 255, 255, 0.7);
+        }
+
+        button:focus {
+            outline: 2px solid rgba(255, 255, 255, 0.7);
+        }
+
+        #gif-container img {
+            max-width: 100%;
+            height: auto;
+            margin-top: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        #gif-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .glass-container {
+                max-width: 90%;
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            p {
+                font-size: 0.9rem;
+            }
+
+            .question {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .question input {
+                margin-top: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            p {
+                font-size: 0.8rem;
+            }
+
+            button {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+
+            .chatbot-button {
+                width: 50px;
+                height: 50px;
+                font-size: 20px;
+            }
+        }
+
+        body {
+            overflow: auto;
+            /* Allow scrolling for smaller screens */
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="background"></canvas>
+
+    <div id="toast">Score Submitted!</div>
+
+    <div class="glass-container">
+        <h1>Rose-Hulman Purity Test</h1>
+        <p>Check the boxes for the statements that apply to you. The lower your score, the less "pure" you are!</p>
+        <form id="purityTest">
+            <div class="question">
+                <label for="q1">Pulled an all-nighter for a project</label>
+                <input type="checkbox" id="q1" name="q1">
+            </div>
+            <div class="question">
+                <label for="q2">Joined the Homecoming festivities</label>
+                <input type="checkbox" id="q2" name="q2">
+            </div>
+            <div class="question">
+                <label for="q3">Lived in Speed Hall</label>
+                <input type="checkbox" id="q3" name="q3">
+            </div>
+            <button type="button" onclick="calculateScore()">Submit</button>
+        </form>
+        <div id="results"></div>
+        <div id="gif-container" class="mt-6"></div>
+    </div>
+
+    <div class="chatbot-button">
+        💬
+    </div>
+
+    <script>
+        const canvas = document.getElementById('background');
+        const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        let spheres = [];
+        let particles = [];
+
+        class Particle {
+            constructor(x, y, radius, color, velocity) {
+                this.x = x;
+                this.y = y;
+                this.radius = radius;
+                this.color = color;
+                this.velocity = velocity;
+                this.alpha = 1;
+            }
+
+            draw() {
+                ctx.save();
+                ctx.globalAlpha = this.alpha;
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = this.color;
+                ctx.fill();
+                ctx.closePath();
+                ctx.restore();
+            }
+
+            update() {
+                this.x += this.velocity.x;
+                this.y += this.velocity.y;
+                this.alpha -= 0.01;
+                this.draw();
+            }
+        }
+
+        class Sphere {
+            constructor(x, y, radius, color, velocity) {
+                this.x = x;
+                this.y = y;
+                this.radius = radius;
+                this.color = color;
+                this.velocity = velocity;
+            }
+
+            draw() {
+                const gradient = ctx.createRadialGradient(
+                    this.x, this.y, this.radius * 0.5,
+                    this.x, this.y, this.radius
+                );
+                gradient.addColorStop(0, this.color);
+                gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
+
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                ctx.fillStyle = gradient;
+                ctx.fill();
+                ctx.closePath();
+            }
+
+            explode() {
+                for (let i = 0; i < 8; i++) {
+                    particles.push(
+                        new Particle(
+                            this.x,
+                            this.y,
+                            Math.random() * 5 + 2,
+                            this.color,
+                            {
+                                x: (Math.random() - 0.5) * 4,
+                                y: (Math.random() - 0.5) * 4
+                            }
+                        )
+                    );
+                }
+            }
+
+            update() {
+                this.x += this.velocity.x;
+                this.y += this.velocity.y;
+
+                // Bounce off edges
+                if (this.x - this.radius < 0 || this.x + this.radius > canvas.width) {
+                    this.velocity.x *= -1;
+                    this.explode();
+                }
+                if (this.y - this.radius < 0 || this.y + this.radius > canvas.height) {
+                    this.velocity.y *= -1;
+                    this.explode();
+                }
+
+                this.draw();
+            }
+        }
+
+        function initSpheres() {
+            spheres = [];
+            particles = [];
+            for (let i = 0; i < 30; i++) {
+                const radius = Math.random() * 30 + 10;
+                const x = Math.random() * (canvas.width - radius * 2) + radius;
+                const y = Math.random() * (canvas.height - radius * 2) + radius;
+                const color = `rgba(${Math.random() * 255}, ${Math.random() * 255}, ${Math.random() * 255}, 1)`;
+                const velocity = {
+                    x: (Math.random() - 0.5) * 2,
+                    y: (Math.random() - 0.5) * 2
+                };
+                spheres.push(new Sphere(x, y, radius, color, velocity));
+            }
+        }
+
+        function animate() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            spheres.forEach(sphere => sphere.update());
+
+            particles.forEach((particle, index) => {
+                if (particle.alpha <= 0) {
+                    particles.splice(index, 1);
+                } else {
+                    particle.update();
+                }
+            });
+
+            requestAnimationFrame(animate);
+        }
+
+        initSpheres();
+        animate();
+
+        const API_KEY = "sM52kiTt4H8Z4AAjIluwsIzkEuNRrLyH"; // Replace with your Giphy API key
+
+        function fetchGif(query) {
+            const API_KEY = "sM52kiTt4H8Z4AAjIluwsIzkEuNRrLyH"; // Your embedded API key
+            const url = `https://api.giphy.com/v1/gifs/search?api_key=${API_KEY}&q=${query}&limit=1`;
+
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    const gifContainer = document.getElementById("gif-container");
+                    gifContainer.innerHTML = "";
+                    if (data.data.length > 0) {
+                        const gifUrl = data.data[0].images.fixed_height.url;
+                        gifContainer.innerHTML = `<img src="${gifUrl}" alt="${query}" class="rounded-lg shadow-lg">`;
+                    } else {
+                        gifContainer.textContent = "No GIF found!";
+                    }
+                })
+                .catch(error => console.error("Error fetching GIF:", error));
+        }
+
+
+        function calculateScore() {
+            const checkboxes = document.querySelectorAll('#purityTest input[type="checkbox"]');
+            let checkedCount = 0;
+
+            checkboxes.forEach(checkbox => {
+                if (checkbox.checked) {
+                    checkedCount++;
+                }
+            });
+
+            const totalQuestions = checkboxes.length || 3; // Placeholder for demo
+            const purityScore = 100 - Math.round((checkedCount / totalQuestions) * 100);
+
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = `<strong>Your Purity Score:</strong> ${purityScore}`;
+
+            // Show toast notification
+            const toast = document.getElementById('toast');
+            toast.style.display = 'block';
+            setTimeout(() => toast.style.display = 'none', 3000);
+
+            // Fetch a GIF based on the score and display it
+            const gifQuery = purityScore > 50 ? 'happy' : 'funny fail'; // Adjust query based on score
+            fetchGif(gifQuery); // Call the fetchGif function here
+        }
+    </script>
+</body>
+
+</html>
